@@ -1,16 +1,18 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dtos/create-user.dto';
 import mongoose from 'mongoose';
+import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -29,8 +31,11 @@ export class UsersController {
   @Get('/:id')
   async getUserById(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
+    if (!isValid) {
+      throw new BadRequestException('please provide valide params');
+    }
     const findUser = await this.usersService.getUserById(id);
-    if (!findUser || !isValid) {
+    if (!findUser) {
       throw new NotFoundException('user not found');
     }
     return findUser;
@@ -42,10 +47,26 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
-    const findUser = await this.usersService.getUserById(id);
-    if (!findUser || !isValid) {
+    if (!isValid) {
+      throw new BadRequestException('please provide valide params');
+    }
+    const updatedUser = await this.usersService.upateUser(id, updateUserDto);
+    if (!updatedUser) {
       throw new NotFoundException('user not found');
     }
-    return this.usersService.upateUser(id, updateUserDto);
+    return updatedUser;
+  }
+
+  @Delete('/:id')
+  async deleteUser(@Param('id') id: string) {
+    const isValid = mongoose.Types.ObjectId.isValid(id);
+    if (!isValid) {
+      throw new BadRequestException('please provide valide params');
+    }
+    const deletedUser = await this.usersService.deleteUser(id);
+    if (!deletedUser) {
+      throw new NotFoundException('user not found');
+    }
+    return deletedUser;
   }
 }
