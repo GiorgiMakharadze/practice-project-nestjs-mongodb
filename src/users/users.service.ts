@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../schemas/user.shcmea';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,5 +20,9 @@ export class UsersService {
 
   getUserById(id: string) {
     return this.userModel.findById(id).exec();
+  }
+
+  upateUser(id: string, updateUserDto: UpdateUserDto) {
+    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });
   }
 }
